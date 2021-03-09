@@ -1,0 +1,27 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+#canvas-container {
+  height: 100vh;
+  width: 100vw;
+}
+
+#sidebar {
+  position: fixed;
+  height: 100vw;
+  width: 150px;
+  z-index=1;
+  transition: transform 0.1s;
+  background-color: #eeeeee;
+}
+
+.closed {
+  transform: translate3D(-100%, 0, 0);
+}
+
+.open {
+  transform: none;
+}
