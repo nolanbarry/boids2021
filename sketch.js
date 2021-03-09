@@ -3,7 +3,7 @@ let walls = [];
 let BOID_COUNT = 200;
 let DRAW_WALLS = false;
 let CONTINUE = true;
-let MONITOR = 0;
+let MONITOR = -1;
 let COHESION_MULTIPLIER = 1;
 let ALIGNMENT_MULTIPLIER = 1;
 let SEPARATION_MULTIPLIER = 1;
@@ -113,7 +113,7 @@ function advance(boid) {
   let dirVect = createPoint(cos(boid.direction), sin(boid.direction));
   dirVect.x += (average.x - dirVect.x) / boid.speed;
   dirVect.y += (average.y - dirVect.y) / boid.speed;
-  boid.direction = atan2(dirVect.y, dirVect.x);
+  if (flockmates.length > 0) boid.direction = atan2(dirVect.y, dirVect.x);
   boid.x += cos(boid.direction) * boid.speed;
   boid.y += sin(boid.direction) * boid.speed;
   if (boid.id == MONITOR) {
@@ -143,6 +143,7 @@ function advance(boid) {
   }
 }
 
+// gets where the boid is looking (point on sight)
 function heading(boid) {
   return createPoint(
     boid.x + cos(boid.direction) * boid.sightRadius,
