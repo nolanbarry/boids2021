@@ -8,6 +8,7 @@ let COHESION_MULTIPLIER = 1;
 let ALIGNMENT_MULTIPLIER = 1;
 let SEPARATION_MULTIPLIER = 1;
 let OBSTACLE_POLL_COUNT = 8;
+let TARGET_SIZE = 15;
 
 function setup() {
   angleMode(RADIANS);
@@ -20,8 +21,8 @@ let createBoid = (id) => { return {
     x: floor(random(windowWidth)),
     y: floor(random(windowHeight)),
     direction: random(2*PI),
-    radius: 15,
-    speed: 3,
+    radius: 0,
+    speed: 8,
     sightRadius: 50,
     id: id,
     color: '#1f1f1f'
@@ -109,9 +110,10 @@ function advance(boid) {
     flockmates.reduce((a, b) => a - (sin(atan2(b.y - boid.y, b.x - boid.x)) * boid.sightRadius) - (b.y - boid.y), 0) / flockmates.length
   );
   let obstacles = obstacleAvoidance(boid);
+  let weight = (x) => x / (COHESION_MULTIPLIER + ALIGNMENT_MULTIPLIER + SEPARATION_MULTIPLIER)
   let average = createPoint(
-    (flockCenter.x + flockHeading.x + steerAway.x) / 3,
-    (flockCenter.y + flockHeading.y + steerAway.y) / 3
+    flockCenter.x * weight(COHESION_MULTIPLIER) + flockHeading.x * weight(ALIGNMENT_MULTIPLIER) + steerAway.x * weight(SEPARATION_MULTIPLIER),
+    flockCenter.y * weight(COHESION_MULTIPLIER) + flockHeading.y * weight(ALIGNMENT_MULTIPLIER) + steerAway.y * weight(SEPARATION_MULTIPLIER)
   );
   average.x += obstacles.x / 2;
   average.y += obstacles.y / 2;
@@ -121,9 +123,12 @@ function advance(boid) {
   if (flockmates.length > 0) boid.direction = atan2(dirVect.y, dirVect.x);
   boid.x += cos(boid.direction) * boid.speed;
   boid.y += sin(boid.direction) * boid.speed;
-  boid.x %= windowWidth;
-  boid.y %= windowHeight;
-
+  if (boid.x != boid.x % windowWidth || boid.y != boid.y % windowHeight) {
+    boid.x = random(windowWidth);
+    boid.y = random(windowHeight);
+    boid.radius = 0;
+  }
+  boid.radius += (TARGET_SIZE - boid.radius) / 7;
   if (boid.id == MONITOR) {
     for(let mate of flockmates) {
       mate.color = '#00ff00';
